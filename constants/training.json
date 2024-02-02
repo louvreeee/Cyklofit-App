@@ -1,0 +1,58 @@
+{
+    "trainings": [
+      {
+        "id": 1,
+        "make": "Sprinting",
+        "subtitle": "Start >",
+        "description": "Sprinting in cycling is a distinctive skill that depends on both physical fitness and proper technique (Hurley, 2021). Study confirmed that quadriceps  muscle strength highly correlates with sprint cycling. The glutes  and hamstrings also play a significant role (Schwenker, 2022).",
+        "musclegroups": {
+          "quads": "High",
+          "hamstrings": "Medium",
+          "glutes": "High"
+        },
+        "muscleimages": [
+          "quads-high",
+          "hams-med",
+          "glutes-high"
+        ]
+      },
+      {
+        "id": 2,
+        "make": "Standing Climbing",
+        "subtitle": "Start >",
+        "description": "'Standing up also alters many of your body's angles with a key one being at the hip,' adds Passfield. By opening this up, you activate more muscles, including the glutes and more of the calves, which gives you more power potential (Witts, 2021).",
+        "musclegroups": {
+          "quads": "High",
+          "hamstrings": "Low",
+          "glutes": "High"
+        
+        },
+        "muscleimages": [
+          "quads-high",
+          "hams-low",
+          "glutes-high"
+        ]
+      },
+      {
+        "id": 3,
+        "make": "Seated Climbing",
+        "subtitle": "Start >",
+        "description": "Seated climbing allows the cyclist to reduce upper-body movement and concentrate solely on power output from the legs. By relaxing the arms and shoulders (by dropping the shoulders down from the ears) and opening the chest (by letting the chest lead), the cyclist can recruit gluteal muscles at a higher level, as well as the hamstrings and quadriceps (Cycling Science,2017).",
+        "musclegroups": {
+          "quads": "High",
+          "hamstrings": "Medium",
+          "glutes": "High"
+        
+        },
+        "muscleimages": [
+          "quads-high",
+          "hams-med",
+          "glutes-high"
+        ]
+      }
+
+      
+    ]
+
+    
+}

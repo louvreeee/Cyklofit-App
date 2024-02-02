@@ -1,0 +1,30 @@
+{
+    "modes": [
+      {
+        "id": 1,
+        "make": "Let’s calibrate your device before cycling.",
+        "subtitle": "Lorem ipsum",
+        "description": "Sprinting in cycling is a distinctive skill that depends on both physical fitness and proper technique (Hurley, 2021). Study confirmed that quadriceps  muscle strength highly correlates with sprint cycling. The glutes  and hamstrings also play a significant role (Schwenker, 2022).",
+        "musclegroups": {
+          "quads": "High",
+          "hamstrings": "Medium",
+          "glutes": "High"
+        }
+      },
+      {
+        "id": 2,
+        "make": "Ready when you are. Let’s begin training.",
+        "subtitle": "Lorem ipsum",
+        "description": "'Standing up also alters many of your body's angles with a key one being at the hip,' adds Passfield. By opening this up, you activate more muscles, including the glutes and more of the calves, which gives you more power potential (Witts, 2021).",
+        "musclegroups": {
+          "quads": "High",
+          "hamstrings": "Low",
+          "glutes": "High"
+        
+        }
+      }
+      
+    ]
+
+    
+}
