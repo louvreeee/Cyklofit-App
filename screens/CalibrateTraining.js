@@ -3,6 +3,7 @@ import {
   ScrollView,
   ImageBackground,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import { Image, SafeAreaView, StyleSheet, Text, View, Dimensions } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -11,7 +12,7 @@ import {
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
 import { COLORS, FONTS } from "../constants";
-import { getDatabase, ref, get } from "firebase/database";
+import {   getDatabase, push, ref, set, update, remove, get, query, orderByChild, equalTo,} from "firebase/database";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 const { width: windowWidth, height: windowHeight } = Dimensions.get('window');
@@ -21,10 +22,35 @@ const image_v_3 = require("../assets/images/training3.jpg");
 
 import data from "../constants/training.json";
 
-const Training = ({ navigation }) => {
+const CalibrateTraining = ({ navigation }) => {
   const [trainings, setTrainings] = useState(data.trainings);
   const [filteredTrainings, setFilteredTrainings] = useState(data.trainings);
-  
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const auth = getAuth();
+        onAuthStateChanged(auth, async (user) => {
+        
+        });
+
+        const trainingSnapshot = await get(ref(getDatabase(), "trainings"));
+        const trainingData = trainingSnapshot.val();
+
+        if (trainingData) {
+          setTrainings(trainingData);
+          setFilteredTrainings(trainingData);
+        }
+      } catch (error) {
+        console.log("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const getImage = (id) => {
     if (id === 1) return image_v_1;
@@ -40,58 +66,104 @@ const Training = ({ navigation }) => {
 
     setFilteredTrainings(results);
   };
-
-  //Route for flask (getting user_id and training)
-  const handleStartPress = (trainingId) => {
+  
+  const handleStartPress = async (trainingId) => {
     const auth = getAuth();
     const user = auth.currentUser;
   
     if (user) {
       console.log("User UID:", user.uid);
       console.log("Selected Training ID:", trainingId);
+    // Send user ID and selected training to Flask app
+    fetch('https://testdeploy-production-50d3.up.railway.app/api/userId', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userId: user.uid,
+        trainingId: trainingId, // Use the training ID directly
+      }),
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('Success:', data);
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+    })
+
+      const thresholdsRef = ref(
+        getDatabase(),
+        `users/${user.uid}/Calibration/Training/${trainingId}/Thresholds`
+      );
   
-      // Send user ID and selected training to Flask app
-      fetch('https://testdeploy-production-50d3.up.railway.app/api/userId', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId: user.uid,
-          trainingId: trainingId, // Use the training ID directly
-        }),
-      })
-      .then(response => response.json())
-      .then(data => {
-        console.log('Success:', data);
-        // Navigate to DataTimer screen with the trainingId parameter
-        navigation.navigate('DetailScreen', { trainingId: trainingId });
-      })
-      
-      .catch((error) => {
-        console.error('Error:', error);
-      });
+      const thresholdsSnapshot = await get(thresholdsRef);
+  
+      if (thresholdsSnapshot.exists()) {
+        Alert.alert(
+          "Calibration Data Found.",
+          "There are existing calibration thresholds for this training. Do you want to proceed and overwrite the existing data?",
+          [
+            {
+              text: "Cancel",
+              style: "cancel",
+              onPress: () => {
+                navigation.navigate("CalibrateTraining");
+              },
+            },
+            {
+              text: "Proceed",
+              onPress: async () => {
+                try {
+                  // Update the sub-node of 'Thresholds' with null values
+                  await update(thresholdsRef, {
+                    "L_glutes": null,
+                    "L_hams": null,
+                    "L_quads": null,
+                    "R_glutes": null,
+                    "R_hams": null,
+                    "R_quads": null,
+                  
+                  });
+                  console.log("Successfully deleted the thresholds.");
+  
+                  // Proceed to CalibrationScreen
+                  navigation.navigate("CalibrationScreen", { id: trainingId });
+                } catch (error) {
+                  console.error("Error deleting existing thresholds:", error);
+                }
+              },
+            },
+          ]
+        );
+      } else {
+        // No existing thresholds, navigate directly to CalibrationScreen
+        navigation.navigate("CalibrationScreen", { id: trainingId });
+      }
     } else {
       console.log("No user is signed in.");
       // Handle the case where there is no user signed in
     }
   };
-
+  
+  
+  
   return (
     <SafeAreaView style={styles.safeArea}>
     <View style={styles.container}>
       <View style={{ flexDirection: 'row', marginTop:-5}}>
   <TouchableOpacity
     style={styles.backButton}
-    onPress={() => navigation.goBack()}
-  >
+    onPress={() => 
+  navigation.navigate("BottomTabNavigation")
+}>
     <Ionicons name="arrow-back-circle" size={55} color={COLORS.white} />
   </TouchableOpacity>
-  <Text style={styles.titleText}>Cyclist Training List</Text>
+  <Text style={styles.titleText}>Training Calibration</Text>
 </View>
     
-    
-      <View style={styles.listSection}>
+    <View style={styles.listSection}>
       <Image
           source={require("../assets/images/header.png")}
           resizeMode="contain"
@@ -99,6 +171,7 @@ const Training = ({ navigation }) => {
         />
         <Text style={styles.headerText}>Select Training:</Text>
         </View>
+        
         <ScrollView style={{height: '100%', flex:1, marginTop:5, padding:30,marginBottom:30, }}>
           {filteredTrainings.map((training) => {
             return (
@@ -106,8 +179,10 @@ const Training = ({ navigation }) => {
   style={styles.element}
   key={training.id}
   activeOpacity={0.8}
-  onPress={() => navigation.navigate("DetailScreen", { id: training.id })}
->
+onPress={() => {
+  handleStartPress(training.make); 
+  navigation.navigate("CalibrationScreen", { id: training.id });
+}}>
 
                   <ImageBackground
                     source={getImage(training.id)}
@@ -153,9 +228,6 @@ const Training = ({ navigation }) => {
   );
 };
 
-
-
-
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
@@ -163,16 +235,13 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    
   },
 
   listSection: {
-    //marginTop: 65,
     backgroundColor: COLORS.background,
     paddingLeft: 30,
     paddingRight: 30,
     justifyContent: "space-between",
-    //height: "100%"
   },
   title: {
     ...FONTS.h5,
@@ -180,13 +249,13 @@ const styles = StyleSheet.create({
   },
   
   titleText: {
-    marginTop:55,
+    marginTop:60,
     paddingLeft: windowWidth * 0.1,
     ...FONTS.h6,
     color: COLORS.white,
   },
   headerText: {
-    marginTop:10,
+    marginTop:-8,
     ...FONTS.body2,
     color: COLORS.white,
     fontSize: windowHeight * 0.028,
@@ -206,13 +275,11 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     alignItems: 'center',
     justifyContent: 'center',
-    // width: 100,
   },
   startButtonId1:{
     width: '85%',
     backgroundColor: '#434E58',
     borderColor: '#434E58',
-    // width: 100,
   },
   startButtonId2:{
     marginLeft:25,
@@ -223,8 +290,6 @@ const styles = StyleSheet.create({
    height: 125,
     width: "100%",
     position: "absolute",
-  // flex:2,
-    //justifyContent: "space-between",
     alignItems: "center",
   },
   firstName: {
@@ -248,7 +313,6 @@ const styles = StyleSheet.create({
   width:"100%",
   height: 120,
   },
-  
   element: {
     height: 150,
     width: "100%",
@@ -280,4 +344,4 @@ const styles = StyleSheet.create({
 
   },
 });
-export default Training;
+export default CalibrateTraining;

@@ -5,12 +5,13 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from "@react-navigation/native";
 import { FONTS } from './constants/fonts';
 import { useCallback } from 'react';
-import { Onboarding, SplashScreen2, Login, Signup, Welcome, HomeScreen, 
-  Training, GraphTab, Profile, BluetoothScreen, DataMonitor, DataTimer, EditProfile, Insight, CalibrationScreen, DetailScreen, MuscleGroup } from './screens';
+import { Onboarding, AlertScreen, SplashScreen2, Login,LoginSuccess, Signup, CalibrateTraining, HomeScreen, 
+  Training, GraphTab,DataChecker, Profile, BluetoothScreen, DataMonitor, DataTimer, 
+  EditProfile, Insight, CalibrationScreen, DetailScreen, MuscleGroup } from './screens';
 import { Provider } from 'react-redux';
 import { store } from './store/store';
 import { StyleSheet, Text, View } from 'react-native';
-import BottomTabNavigation from './navigation/BottomTabNavigation'
+import BottomTabNavigation from './navigation/BottomTabNavigation';
 
 SplashScreen.preventAutoHideAsync()
 
@@ -40,21 +41,24 @@ export default function App() {
       ><Stack.Screen name="SplashScreen2" component={SplashScreen2} />
       <Stack.Screen name="Onboarding" component={Onboarding}/>
         <Stack.Screen name="Login" component={Login}/>
+        <Stack.Screen name="LoginSuccess" component={LoginSuccess}/>
         <Stack.Screen name="Signup" component={Signup}/>
         <Stack.Screen name="BottomTabNavigation" component={BottomTabNavigation}/>
-        <Stack.Screen name="Welcome" component={Welcome}/>
         <Stack.Screen name="HomeScreen" component={HomeScreen}/>
+        <Stack.Screen name="Profile" component={Profile}/>
+        <Stack.Screen name="Insight" component={Insight}/>
+        <Stack.Screen name="CalibrateTraining" component={CalibrateTraining}/>
         <Stack.Screen name="Training" component={Training}/>
         <Stack.Screen name="EditProfile" component={EditProfile}/>
-        <Stack.Screen name="Profile" component={Profile}/>
         <Stack.Screen name="BluetoothScreen" component={BluetoothScreen}/>
         <Stack.Screen name="CalibrationScreen" component={CalibrationScreen}/>
-        <Stack.Screen name="Insight" component={Insight}/>
         <Stack.Screen name="DataMonitor" component={DataMonitor}/>
         <Stack.Screen name="DataTimer" component={DataTimer}/>
         <Stack.Screen name="DetailScreen" component={DetailScreen}/>
         <Stack.Screen name="MuscleGroup" component={MuscleGroup}/>
         <Stack.Screen name="GraphTab" component={GraphTab}/>
+        <Stack.Screen name="AlertScreen" component={AlertScreen}/>
+        <Stack.Screen name="DataChecker" component={DataChecker}/>
         </Stack.Navigator>
   
       </NavigationContainer>

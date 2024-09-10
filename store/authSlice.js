@@ -10,14 +10,12 @@ const authSlice = createSlice({
     reducers: {
         authenticate: (state, action) => {
             const { payload } = action
-            state.token = payload.token
+            //state.token = payload.token
             state.userData = payload.userData
             state.didTryAutoLogin = true
             console.log(state)
         },
-        setDidTryAutoLogin: (state, action) => {
-            state.didTryAutoLogin = true
-        }
+       
     },
 })
 

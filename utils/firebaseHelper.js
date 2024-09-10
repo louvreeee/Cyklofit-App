@@ -162,6 +162,27 @@ export const fetchUserData = async (userId) => {
     throw error;
   }
 };
+
+export const fetchGraphData = async (userId) => {
+  const database = getDatabase(getFirebaseApp());
+  const userGraphDataRef = ref(database, `users/${userId}/Signal/linegraph`);
+
+  try {
+    const snapshot = await get(userGraphDataRef);
+
+    if (snapshot.exists()) {
+      return snapshot.val();
+    } else {
+      console.log('No data available');
+      return null;
+    }
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+
 export const fetchUserDataByEmail = async (email) => {
   const database = getDatabase(firebaseApp);
   const usersRef = ref(database, 'users');

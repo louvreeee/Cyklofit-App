@@ -40,7 +40,7 @@ const ModeElement = ({ mode, navigation, image }) => {
   return (
     <TouchableOpacity
       style={[
-        // Removed the existing styles for element
+        
       ]}
       activeOpacity={0.8}
       onPress={() =>
@@ -100,7 +100,7 @@ const ModeElement = ({ mode, navigation, image }) => {
     navigateToScreen(mode.id === 1 ? 'BluetoothScreen' : 'Training')
   }
 >
-  <Text style={{ ...FONTS.bod3, color: COLORS.white }}>Start</Text>
+  <Text style={{ ...FONTS.body3, color: COLORS.white, fontSize:windowHeight* 0.02 }}>Start</Text>
 </TouchableOpacity>
           </View>
         </View>
@@ -158,6 +158,7 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      {/*<BottomTabNavigation />*/}
       <View style={styles.container}>
         <View style={styles.headerSection}>
           <ImageBackground
@@ -168,7 +169,7 @@ const HomeScreen = ({ navigation }) => {
         <SafeAreaView style={{}}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => navigation.goBack()}
+            onPress={() => navigation.navigate('Login')}
           >
             <Ionicons
               name="arrow-back-circle"
@@ -185,7 +186,7 @@ const HomeScreen = ({ navigation }) => {
             </Text>
           </View>
         </SafeAreaView>
-        <View style={styles.topSection}><Text style={styles.headText}>Select Mode:</Text></View>
+        <View style={styles.topSection}><Text style={styles.headerText}>Select Mode:</Text></View>
         <ScrollView style={{flex:1}}>
         <View style={styles.listSection}>
           <View style={[styles.elementPallet]}>
@@ -219,9 +220,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    
   },
-
   startButton:{
     width: '85%',
     backgroundColor: COLORS.primary,
@@ -231,13 +230,11 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     alignItems: 'center',
     justifyContent: 'center',
-    // width: 100,
   },
   startButtonId1:{
     width: '85%',
     backgroundColor: '#434E58',
     borderColor: '#434E58',
-    // width: 100,
   },
   startButtonId2:{
     marginLeft:25,
@@ -267,18 +264,13 @@ const styles = StyleSheet.create({
   
   },
  modeContainerId1: {
-  //  justifyContent: "space-between",
     alignItems: "center",
-   // marginTop: 30,
-   // marginHorizontal: 30,
-    width: '70%',
+    width: '73%',
   },
   modeContainerId2: {
-    //  justifyContent: "space-between",
       alignItems: "center",
-     marginLeft: 95,
-     // marginHorizontal: 30,
-      width: '70%',
+     marginLeft: windowWidth * 0.197,
+      width: '73%',
     },
     topSection: {
       marginTop: 30,
@@ -290,12 +282,9 @@ const styles = StyleSheet.create({
       backgroundColor: COLORS.background,
       justifyContent: "space-between",
       position:'relative',
-     
     },
   listSection: {
     marginTop: 0,
-  //  borderTopLeftRadius: 40,
-  //  borderTopRightRadius: 40,
     backgroundColor: COLORS.background,
     paddingLeft: 30,
     paddingRight: 30,
@@ -303,7 +292,6 @@ const styles = StyleSheet.create({
     height:'100%',
     position:'relative',
     paddingBottom:60
-   
   },
   titleText: {
     marginTop:55,
@@ -311,11 +299,11 @@ const styles = StyleSheet.create({
     ...FONTS.h6,
     color: COLORS.white,
   },
-  headText: {
+  headerText: {
     marginTop:-8,
-    ...FONTS.h6,
+    ...FONTS.body2,
     color: COLORS.white,
-    fontSize: windowHeight * 0.032,
+    fontSize: windowHeight * 0.028,
   },
   elementPallet: {
     marginTop: 25,
@@ -324,32 +312,29 @@ const styles = StyleSheet.create({
     height: "100%",
     flex:1,
     paddingBottom:20,
- 
   },
   element: {
     height: 160,
     width: "100%",
     marginBottom: 50,
- //   backgroundColor: COLORS. darkgray,
     borderRadius: 10,
   },
   elementId1: {
     height: 160,
     width: "100%",
     marginBottom: 60,
- //   backgroundColor: COLORS. black,
     borderRadius: 10,
   },
   infoAreaId1: {
     width: "85%",
     marginTop: 0,
     marginBottom: 15,
-    paddingLeft: 15,
+    paddingLeft: 10,
   },
   infoAreaId2: {
     width: "85%",
     marginBottom: -30,
-    paddingLeft: 20,
+    paddingLeft: 10,
   },
   infoTitle: {
     ...FONTS.body2,
@@ -357,11 +342,11 @@ const styles = StyleSheet.create({
     color: COLORS.white,
      padding:5,
     marginBottom: 15,
-    fontSize: windowHeight * 0.024,
+    fontSize: windowHeight * 0.023,
   },
   infoTitleId2: {
     ...FONTS.body2,
-    fontSize: windowHeight * 0.024,
+    fontSize: windowHeight * 0.023,
     textAlign: "right",
     color: COLORS.white,
      padding:5,

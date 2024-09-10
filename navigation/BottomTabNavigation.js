@@ -92,7 +92,7 @@ const BottomTabNavigation = () => {
                                                 color: COLORS.primary,
                                             }}
                                         >
-                                            Post Analysis
+                                            Insights
                                         </Text>
                                     </>
                                 ) : (
@@ -104,7 +104,7 @@ const BottomTabNavigation = () => {
         color: COLORS.gray,
       }}
     >
-      Post Analysis
+      Insights
     </Text>
   </React.Fragment>
                                 )}
@@ -162,4 +162,4 @@ const BottomTabNavigation = () => {
     )
 }
 
-export default BottomTabNavigation
+export default BottomTabNavigation;

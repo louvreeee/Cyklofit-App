@@ -7,7 +7,7 @@ import CircularProgress from 'react-native-circular-progress-indicator';
 import { COLORS, FONTS } from '../constants';
 import { Ionicons } from "@expo/vector-icons";
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { getDatabase, ref, onValue, get} from 'firebase/database';
+import { getDatabase, ref, onValue } from 'firebase/database';
 import moment from 'moment';
 
 const { width: windowWidth, height: windowHeight } = Dimensions.get("window");
@@ -22,7 +22,7 @@ const Insight = () => {
     day: 'numeric',
   });
 
-  const [gData, setGdata] = useState([
+  const [data, setData] = useState([
     [], // Initial state as arrays instead of objects with a data key
     [],
     [],
@@ -31,8 +31,6 @@ const Insight = () => {
     [],
   ]);
   const [xAxisLabels, setXAxisLabels] = useState([]);
-  const colors = ['#07E092', '#FD5B71', '#936DFF', '#07E092', '#FD5B71', '#936DFF'];
-
 
   useEffect(() => {
     const fetchGraphData = async () => {
@@ -46,7 +44,7 @@ const Insight = () => {
             onValue(userGraphDataRef, (snapshot) => {
               const userGraphData = snapshot.val();
               if (userGraphData) {
-                setGdata((prevData) => prevData.map((d, i) => i === index ? userGraphData.mv : d));
+                setData((prevData) => prevData.map((d, i) => i === index ? userGraphData.mv : d));
                 if (index === 0) { 
                   setXAxisLabels(userGraphData.seconds.map((second) => moment.unix(second).format('HH:mm:ss')));
                 }
@@ -62,8 +60,20 @@ const Insight = () => {
 
   const [totalTrainingTime, setTotalTrainingTime] = useState(0);
   const [pieChartData, setPieChartData] = useState([]);
-  const [mfiData, setMfiData] = useState({});
-
+  const getColorForTrainingName = (trainingName) => {
+    switch (trainingName) {
+      case 'Sprinting':
+        return '#07E092';
+      case 'Standing Climbing':
+        return '#FD5B71';
+      case 'Seated Climbing':
+        return '#936DFF';
+      default:
+        return '#3f3f3f'; // Default color if trainingName does not match
+    }
+  };
+  
+  const colors = ['#07E092', '#FD5B71', '#936DFF'];
   useEffect(() => {
     const fetchTrainingData = async () => {
       const auth = getAuth();
@@ -82,49 +92,25 @@ const Insight = () => {
           for (const trainingName in trainingNames) {
             const trainingRef = ref(getDatabase(), `users/${userId}/Training/${trainingName}/timers/totalTime`);
 
-            // Use Promises to handle asynchronous data fetching
-            try {
-              const snapshot = await get(trainingRef);
+            // Fetch the total time for the current training type
+            onValue(trainingRef, (snapshot) => {
               const time = snapshot.val();
               if (time) {
                 totalTime += time;
                 updatedPieData.push({
                   key: trainingNames[trainingName],
                   value: time,
-                  svg: { fill: getColorForTrainingName(trainingName) },
+                  svg: { fill: colors[updatedPieData.length] },
                   trainingName: trainingName,
                 });
+                // Update the pie chart data state uwu
+                setPieChartData([...updatedPieData]);
+                setTotalTrainingTime(totalTime);
               } else {
                 console.log(`No total time found for training: ${trainingName}`);
               }
-            } catch (error) {
-              console.error('Error fetching training data:', error);
-            }
-
-            // Fetch MFI data
-            const muscleGroups = ["L_glutes", "L_hams", "L_quads", "R_glutes", "R_hams", "L_quads"];
-            const trainingMfiData = [];
-
-            for (const muscleGroup of muscleGroups) {
-              const mfiRef = ref(getDatabase(), `users/${userId}/Training/${trainingName}/muscleFatigueIndex/${muscleGroup}`);
-
-              try {
-                const snapshot = await get(mfiRef);
-                const mfiValue = snapshot.val();
-                console.log(`MFI value for ${muscleGroup} in ${trainingName}:`, mfiValue);
-                if (mfiValue !== null) {
-                  trainingMfiData.push({ muscleGroup: muscleGroup, value: mfiValue });
-                }
-              } catch (error) {
-                console.error('Error fetching MFI data:', error);
-              }
-            }
-
-            setMfiData((prevData) => ({ ...prevData, [trainingName]: trainingMfiData }));
+            });
           }
-
-          setPieChartData([...updatedPieData]);
-          setTotalTrainingTime(totalTime);
         }
       });
     };
@@ -132,89 +118,55 @@ const Insight = () => {
     fetchTrainingData();
   }, []);
 
+  const [muscleFatigueIndexData, setMuscleFatigueIndexData] = useState([]);
 
-  const getColorForTrainingName = (trainingName) => {
-      switch (trainingName) {
-          case 'Sprinting':
-              return '#07E092';
-          case 'Standing Climbing':
-              return '#FD5B71';
-          case 'Seated Climbing':
-              return '#936DFF';
-          default:
-              return '#3f3f3f';
-      }
-  };
+    useEffect(() => {
+        const fetchMuscleFatigueIndexData = async () => {
+            const auth = getAuth();
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    const userId = user.uid;
+                    const trainingNames = {
+                        1: "Sprinting",
+                        2: "Standing Climbing",
+                        3: "Seated Climbing"
+                    };
 
-  const getColorForMuscleGroup = (muscleGroup) => {
-    switch (muscleGroup) {
-        case 'L_glutes':
-        case 'R_glutes':
-            return '#07E092';
-        case 'L_hams':
-        case 'R_hams':
-            return '#FD5B71';
-        case 'L_quads':
-        case 'R_quads':
-            return '#936DFF';
-        default:
-            return '#3f3f3f';
-    }
-};
+                    const fatigueIndexData = [];
 
+                    for (const trainingId in trainingNames) {
+                        const trainingName = trainingNames[trainingId];
+                        const mfiRef = ref(
+                            getDatabase(),
+                            `users/${userId}/Training/${trainingName}/muscleFatigueIndex/`
+                        );
 
-const renderBarCharts = () => {
-  const trainingData = {
-    "Sprinting": { values: [], colors: [] },
-    "Standing Climbing": { values: [], colors: [] },
-    "Seated Climbing": { values: [], colors: [] }
-  };
+                        // Fetch the muscle fatigue index data for each training
+                        onValue(mfiRef, (snapshot) => {
+                            const data = snapshot.val();
+                            if (data) {
+                                // Push an object containing training name and its muscle fatigue index data
+                                fatigueIndexData.push({ trainingName, data });
+                                setMuscleFatigueIndexData([...fatigueIndexData]);
+                            }
+                        });
+                    }
+                }
+            });
+        };
 
-  // Populate the trainingData object with MFI values and colors
-  Object.keys(mfiData).forEach((trainingName) => {
-    if (trainingData.hasOwnProperty(trainingName)) {
-      trainingData[trainingName].values = mfiData[trainingName].map((item) => item.value);
-      trainingData[trainingName].colors = mfiData[trainingName].map((item) => getColorForMuscleGroup(item.muscleGroup));
-    }
-  });
+        fetchMuscleFatigueIndexData();
+    }, []);
 
-  // Render the BarChart components
-  return Object.keys(trainingData).map((trainingName, index) => {
-    const trainingMfiData = trainingData[trainingName];
-
-    if (trainingMfiData.values.length > 0) {
-      console.log(`Training: ${trainingName}, MFI data:`, trainingMfiData.values);
-      return (
-        <View key={index} style={styles.barChartContainer}>
-          <Text style={styles.headerText}>{trainingName} Muscle Fatigue Index</Text>
-          <BarChart
-            style={{ height: 150, width: 300 }}
-            horizontal={true}
-            spacingInner={0.1}
-            gridMin={0}
-            gridMax={1} // Adjust the gridMax based on your MFI value range
-            data={trainingMfiData.values.map((value, i) => ({
-              value: value,
-              svg: { fill: trainingMfiData.colors[i] },
-              key: `bar-${i}`
-            }))}
-            contentInset={{ top: 30, bottom: 30 }}
-          >
-            <Grid
-              direction={Grid.Direction.VERTICAL}
-              svg={{ stroke: 'white', strokeWidth: 0.25, opacity: 0.2 }}
-            />
-          </BarChart>
-        </View>
-      );
-    } else {
-      return null;
-    }
-  });
-};
-
-  
- 
+    // Mapping colors to each muscle group
+    const muscleColors = {
+        L_quads: 'palevioletred',
+        L_hams: 'mediumspringgreen',
+        L_glutes: 'mediumpurple',
+        R_quads: 'palevioletred',
+        R_hams: 'mediumspringgreen',
+        R_glutes: 'mediumpurple'
+    };
 
 
   return (
@@ -255,7 +207,40 @@ const renderBarCharts = () => {
 
 
 
-
+<View>
+            <Text>Muscle Fatigue Index Data</Text>
+            <View>
+                {muscleFatigueIndexData.map((trainingData, index) => (
+                    <View key={index}>
+                        <Text style={{ color: 'white' }}>{trainingData.trainingName}</Text>
+                        <View style={{ flexDirection: 'row', height: 200 }}>
+                            <YAxis
+                                data={Object.values(trainingData.data)}
+                                contentInset={{ top: 30, bottom: 30 }}
+                                svg={{ fontSize: 10, fill: 'white' }}
+                                numberOfTicks={Object.keys(trainingData.data).length}
+                            />
+                            <BarChart
+                                style={{ flex: 1, marginLeft: 10 }}
+                                data={Object.values(trainingData.data)}
+                                svg={{ fill: 'rgba(134, 65, 244, 0.8)' }}
+                                contentInset={{ top: 30, bottom: 30 }}
+                                spacingInner={0.4}
+                              //  horizontal={true}
+                            />
+                        </View>
+                        <XAxis
+                            data={Object.values(trainingData.data)}
+                            formatLabel={(value, index) => Object.keys(trainingData.data)[index]}
+                            contentInset={{ left: 10, right: 10 }}
+                            svg={{ fontSize: 10, fill: 'white' }}
+                            style={{ marginHorizontal: -10 }}
+                            numberOfTicks={Object.keys(trainingData.data).length}
+                        />
+                    </View>
+                ))}
+            </View>
+        </View>
 
 
         <View style={styles.headerContainer}>
@@ -322,7 +307,7 @@ const renderBarCharts = () => {
         <View style={styles.lineChartContainer}>
           <View style={{ flexDirection: 'row', height: 200 }}>
             <YAxis
-              data={gData[0]}
+              data={data[0]}
               contentInset={{ top: 20, bottom: 20 }}
               svg={{ fill: 'grey', fontSize: 10 }}
               numberOfTicks={10}
@@ -330,7 +315,7 @@ const renderBarCharts = () => {
             />
             <LineChart
               style={{ flex: 1, marginLeft: 16 }}
-              data={gData.slice(0, 3).map((d, i) => ({ data: d, svg: { stroke: colors[i] } }))}
+              data={data.slice(0, 3).map((d, i) => ({ data: d, svg: { stroke: colors[i] } }))}
               contentInset={{ top: 20, bottom: 20 }}
             >
               <Grid svg={{ stroke: 'white', strokeWidth: 0.25, opacity:  0.2 }} />
@@ -340,7 +325,26 @@ const renderBarCharts = () => {
         </View>
         <View style={styles.headerContainer}><Text style={styles.headerText}>Muscle Fatigue Index</Text></View>
         <View style={styles.barChartContainer}>
-        {renderBarCharts()}
+        <BarChart
+  style={{ height: 150, width: 300 }}
+  horizontal={true}
+  spacingInner={0.1}
+  gridMin={0}
+  gridMax={100}
+  data={muscleFatigueIndexData.map((trainingData, index) => {
+    const muscleFatigueValues = Object.values(trainingData.data); // Get the values of muscle fatigue index
+    return {
+    data: muscleFatigueValues,
+    svg: { 
+        fill: muscleFatigueValues.map((value, index) => muscleColors[Object.keys(trainingData.data)[index]]) 
+    } 
+};
+  })}
+  contentInset={{ top: 30, bottom: 30 }}
+>
+  <Grid direction={Grid.Direction.VERTICAL} svg={{ stroke: 'white', strokeWidth: 0.25, opacity: 0.2 }} />
+</BarChart>
+
 
 
 

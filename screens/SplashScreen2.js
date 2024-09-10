@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import React from "react";
 import LottieView from "lottie-react-native";
 import { useNavigation } from "@react-navigation/native";
+import { COLORS } from "../constants";
 
 const SplashScreen2 = () => {
   
@@ -29,7 +30,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
-    backgroundColor: "#171725",
+    backgroundColor: COLORS.background,
     alignContent: "center",
     justifyContent: "center",
   },

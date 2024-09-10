@@ -102,8 +102,8 @@ const styles = StyleSheet.create({
     height: windowHeight * 0.75,
     justifyContent: "center",
     alignItems: "center",
+    flex:1,
   },
-  
   image: {
     width: windowWidth * 1, 
     height: windowHeight * 0.8,
@@ -117,7 +117,6 @@ const styles = StyleSheet.create({
     lineHeight: windowHeight * 0.05,
     paddingTop: windowHeight * 0.045,
     textAlign: "center",
-   // maxWidth: "60%",
     maxWidth: windowWidth * 0.7,
  
   },
@@ -131,11 +130,9 @@ const styles = StyleSheet.create({
   buttonContainer: {
     alignItems: "center",
     marginBottom: 20,
-  //  width:"100%"
     width: windowWidth, 
   },
   btn: {
-   // width: "90%",
    width: windowWidth * 0.9, 
   },
   signupContainer: {

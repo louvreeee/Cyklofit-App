@@ -81,12 +81,12 @@ const Login = ({ navigation }) => {
       await dispatch(action);
       setError(null);
       await new Promise((resolve) => {
-        Alert.alert(
+       {/*} Alert.alert(
           "Login Successful",
           "You have successfully logged into Cyklofit.",
           [{ text: "OK", onPress: resolve }]
-        );
-        navigation.navigate("BottomTabNavigation");
+       );*/}
+        navigation.navigate("LoginSuccess");
       });
       setIsLoading(false);
     } catch (error) {
@@ -123,7 +123,7 @@ const Login = ({ navigation }) => {
        </View>
         <View style={{ marginVertical: 22 }}>
         <View style={{ marginBottom: 12 }}>
-        <Text style={{...FONTS.body2,color:COLORS.white, marginVertical: 8,  fontSize:windowHeight * 0.02,
+        <Text style={{...FONTS.body2,color:COLORS.white, marginVertical: 8,  fontSize:windowHeight * 0.025
                     }}>Email</Text>
            <Input
             id="email"
@@ -140,7 +140,7 @@ const Login = ({ navigation }) => {
                        ...FONTS.body2,
                         color:COLORS.white,
                         marginVertical: 8,
-                        fontSize:windowHeight * 0.02,
+                        fontSize:windowHeight * 0.025
                     }}>Password</Text>
 
                     <View style={ {flexDirection: "row"} }>
@@ -166,7 +166,7 @@ const Login = ({ navigation }) => {
                             }}
                         >
                             {
-                                isPasswordShown == false? (
+                                isPasswordShown == true? (
                                     <Ionicons name="eye-off" size={24} color={COLORS.white} />
                                 ) : (
                                     <Ionicons name="eye" size={24} color={COLORS.white} />

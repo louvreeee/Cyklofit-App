@@ -6,6 +6,7 @@ import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
 import { StyleSheet, ScrollView, Dimensions, View, Text, TextInput, Alert, TouchableOpacity } from 'react-native';
 import { FONTS, COLORS, SIZES } from '../constants';
 import Button from '../components/Button';
+const { width: windowWidth, height: windowHeight } = Dimensions.get("window");
 
 const EditProfile = ({ navigation, route }) => {
   const [firstName, setFirstName] = useState('');
@@ -76,14 +77,14 @@ const EditProfile = ({ navigation, route }) => {
 
         console.log('User data updated successfully');
 
-        // Show success alert
+       
         Alert.alert('Success', 'User data updated successfully', [
           {
             text: 'OK',
             onPress: () => {
-              // Call the callback function to refresh the profile data
+              
               navigation.goBack();
-              // If there's a callback to refresh the data, call it
+           
               route.params?.refresh?.();
             },
           },
@@ -91,7 +92,7 @@ const EditProfile = ({ navigation, route }) => {
       }
     } catch (error) {
       console.error('Update User Data Error:', error);
-      // Show error alert
+     
       Alert.alert('Error', 'Failed to update user data. Please try again.');
     }
   };
@@ -103,13 +104,13 @@ const EditProfile = ({ navigation, route }) => {
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back-circle" size={55} color={COLORS.white} />
           </TouchableOpacity>
-          <Text style={styles.title}>Profile</Text>
+          <Text style={styles.title}>Edit Profile</Text>
         </View>
 
         <View style={styles.contentContainer}>
           <View style={{ alignItems: 'center' }}>
             <View style={{ width: '100%' }}>
-              <Text style={{ ...FONTS.body2, color: COLORS.white, marginVertical: 8 }}>First Name</Text>
+              <Text style={{ ...FONTS.body2, color: COLORS.white, marginVertical: 8,fontSize:windowHeight * 0.025 }}>First Name</Text>
               <TextInput
                 style={styles.input}
                 placeholder="First Name"
@@ -118,7 +119,7 @@ const EditProfile = ({ navigation, route }) => {
                 onChangeText={(text) => setFirstName(text)}
                 editable={true}
               />
-              <Text style={{ ...FONTS.body2, color: COLORS.white, marginVertical: 8 }}>Last Name</Text>
+              <Text style={{ ...FONTS.body2, color: COLORS.white, marginVertical: 8, fontSize:windowHeight * 0.025 }}>Last Name</Text>
               <TextInput
                 style={styles.input}
                 placeholder="Last Name"
@@ -127,7 +128,7 @@ const EditProfile = ({ navigation, route }) => {
                 onChangeText={(text) => setLastName(text)}
                 editable={true}
               />
-              <Text style={{ ...FONTS.body2, color: COLORS.white, marginVertical: 8 }}>Email</Text>
+              <Text style={{ ...FONTS.body2, color: COLORS.white, marginVertical: 8,fontSize:windowHeight * 0.025 }}>Email</Text>
               <TextInput
                 style={styles.input}
                 placeholder="Email"
@@ -184,17 +185,19 @@ const styles = StyleSheet.create({
   title: {
     ...FONTS.h5,
     color: COLORS.white,
-    marginLeft: 100,
-    marginTop: 15,
+    marginTop:5,
+    marginLeft: windowWidth * 0.2,
   },
   contentContainer: {
+    marginTop: -20,
     paddingHorizontal: 22,
     width: '100%',
     justifyContent: 'center',
   },
   saveButton: {
     width: '100%',
-    paddingVertical: 12,
+    //paddingVertical: 12,
     marginTop: 20,
+    marginVertical: 8,
   },
 });

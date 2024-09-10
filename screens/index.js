@@ -1,7 +1,8 @@
 import SplashScreen2 from "./SplashScreen2";
 import Login from "./Login";
+import LoginSuccess from "./LoginSuccess";
 import Signup from "./Signup";
-import Welcome from "./Welcome";
+import CalibrateTraining from "./CalibrateTraining";
 import Onboarding from "./Onboarding";
 import HomeScreen from "./HomeScreen";
 import Training from "./Training";
@@ -15,13 +16,17 @@ import DataMonitor from "./DataMonitor";
 import GraphTab from "./GraphTab";
 import BluetoothScreen from "./BluetoothScreen";
 import DataTimer from "./DataTimer";
+import AlertScreen from "./AlertScreen"
+import DataChecker from "./DataChecker";
+
 export {
     SplashScreen2,
     Login,
+    LoginSuccess,
     Signup,
     Onboarding,
     HomeScreen,
-    Welcome,
+    CalibrateTraining,
     Training,
     Profile,
     Insight,
@@ -32,5 +37,7 @@ export {
     EditProfile,
     DataMonitor,
     GraphTab,
-    DataTimer
+    DataTimer,
+    AlertScreen,
+    DataChecker,
 }

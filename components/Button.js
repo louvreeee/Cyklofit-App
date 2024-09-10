@@ -22,7 +22,7 @@ const Button = (props) => {
             {isLoading && isLoading == true ? (
                 <ActivityIndicator size="small" color={COLORS.white} />
             ) : (
-                <Text style={{ ...FONTS.body2, color: COLORS.white }}>
+                <Text style={{ ...FONTS.body2, fontSize: windowHeight * 0.025, color: COLORS.white }}>
                     {props.title}
                 </Text>
             )}
@@ -32,7 +32,7 @@ const Button = (props) => {
 const styles = StyleSheet.create({
     btn: {
         paddingHorizontal: SIZES.padding,
-        paddingVertical: windowWidth * 0.035,
+        paddingVertical: windowWidth * 0.025,
         borderColor: COLORS.primary,
         borderWidth: 2,
         borderRadius: 24,

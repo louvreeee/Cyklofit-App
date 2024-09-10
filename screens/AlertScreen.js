@@ -7,7 +7,7 @@ import { COLORS, FONTS } from "../constants";
 import Button from '../components/ButtonNoBorder';
 const { width: windowWidth, height: windowHeight } = Dimensions.get("window");
 
-const BluetoothScreen = () => {
+const AlertScreen = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
@@ -24,7 +24,7 @@ const BluetoothScreen = () => {
   };
 
   const checkConnectionStatus = async () => {
-  
+    // Show loading alert
     Alert.alert("Connecting...", "", [
       { text: "Cancel", onPress: () => cancelFunction(), style: "cancel" }
     ]);
@@ -36,22 +36,22 @@ const BluetoothScreen = () => {
       console.log('Connection status response:', response.data);
       setIsConnected(response.data.connected);
   
-
+      // Close loading alert
       setIsLoading(false);
   
       if (response.data.connected) {
-
+        // Show alert if connection is established
         Alert.alert("Connection established", "Connection to the server is successful.");
         navigation.navigate('CalibrateTraining');
       } else {
-       
+        // Show alert if connection is not established
         Alert.alert("Connection not established", "Please check your connection settings and try again.");
       }
     } catch (error) {
       console.error('Error checking connection status:', error);
-
+      // Close loading alert
       setIsLoading(false);
- 
+      // Show alert if connection fails
       Alert.alert("Connection failed", "There was an error checking the connection status.");
     }
   };
@@ -63,7 +63,7 @@ const BluetoothScreen = () => {
   };
   
   const cancelFunction = () => {
-
+    // End all functions here
     setIsLoading(false);
     setIsConnecting(false);
   };
@@ -83,8 +83,8 @@ const BluetoothScreen = () => {
     <View style={styles.container}>
       <View
         style={styles.box}  >
-        <Text style={styles.heading}> Cyklofit Server Connection Request</Text>
-        <Text style={styles.paragraph}>Cyklofit server is seeking permission to establish a connection with your device. Proceed with the connection?</Text>
+        <Text style={styles.heading}>Hey there...</Text>
+        <Text style={styles.paragraph}>It looks like your device needs calibration. Shall we calibrate it now?</Text>
         <View style={styles.buttonContainer}>
         <TouchableOpacity 
             style={[styles.btn, (isLoading || isConnecting) && styles.disabledBtn]} // Apply disabledBtn style when isLoading or isConnecting is true
@@ -95,7 +95,7 @@ const BluetoothScreen = () => {
           /></TouchableOpacity>
  <TouchableOpacity ><Button style={styles.btn2}
             title="Don't allow"
-            onPress={()=> navigation.goBack()}
+            onPress={() => navigation.navigate("Training")}
           /></TouchableOpacity>
           </View>
        </View>
@@ -190,4 +190,4 @@ const styles = StyleSheet.create({
     paddingLeft:15,
     },
   });
-  export default BluetoothScreen;
+  export default AlertScreen;

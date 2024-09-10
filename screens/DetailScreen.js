@@ -1,21 +1,13 @@
 import React from "react";
-import {
-  Image,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  ImageBackground,
-  ScrollView,
-  Dimensions
-} from "react-native";
+import {Image, SafeAreaView, StyleSheet, Text, TouchableOpacity, View, ImageBackground, ScrollView,
+  Dimensions,Alert} from "react-native";
 import Button from '../components/Button'
 import { Ionicons } from "@expo/vector-icons";
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
-import { cyclistTrainingData } from '../constants/data';
 import { COLORS, FONTS, SIZES, icons } from "../constants";
 import data from "../constants/training.json";
+import {   getDatabase, push, ref, set, update, remove, get, query, orderByChild, equalTo,} from "firebase/database";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 
 const { width: windowWidth, height: windowHeight } = Dimensions.get("window");
@@ -23,33 +15,97 @@ const image_v_1 = require("../assets/images/training1.jpg");
 const image_v_2 = require("../assets/images/training2.jpg");
 const image_v_3 = require("../assets/images/training3.jpg");
 const quadsHighImage = require('../assets/images/quads-high.png');
+const quadsLowImage = require('../assets/images/quads-low.png');
+const quadsMedImage = require('../assets/images/quads-med.png');
 const hamsLowImage = require('../assets/images/hams-low.png');
 const hamsMedImage = require('../assets/images/hams-med.png');
+const hamsHighImage = require('../assets/images/hams-high.png');
 const glutesHighImage = require('../assets/images/glutes-high.png');
+const glutesLowImage = require('../assets/images/glutes-low.png');
+const glutesMedImage = require('../assets/images/glutes-med.png');
+
 
 const DetailScreen = ({ route, navigation }) => {
+  const trainingId = route.params.id;
+
   const training = data.trainings.find(
-    (element) => element.id === route.params.id
-  ); 
+    (element) => element.id === trainingId
+  );
+  const trainingNames = {
+    1: "Sprinting",
+    2: "Standing Climbing",
+    3: "Seated Climbing"
+  };
+  const trainingName = trainingNames[trainingId];
   const getImage = (id) => {
     if (id == 1) return image_v_1;
     if (id == 2) return image_v_2;
     if (id == 3) return image_v_3;
   };
   const getMuscleImage = (imageName) => {
-    switch (imageName) {
-      case "quads-high":
-        return quadsHighImage;
-      case "hams-low":
-        return hamsLowImage;
-      case "hams-med":
-        return hamsMedImage;
-      case "glutes-high":
-        return glutesHighImage;
-      default:
-        return null;
+  switch (imageName) {
+    case "quads-high":
+      return quadsHighImage;
+      case "quads-med":
+      return quadsMedImage;
+      case "quads-low":
+      return quadsLowImage;
+    case "hams-low":
+      return hamsLowImage;
+    case "hams-med":
+      return hamsMedImage;
+      case "hams-high":
+        return hamsHighImage;
+    case "glutes-high":
+      return glutesHighImage;
+      case "glutes-med":
+      return glutesMedImage;
+      case "glutes-low":
+      return glutesLowImage;
+    default:
+      return null;
+  }
+};
+
+const handleStartPress = async (trainingId) => {
+  const auth = getAuth();
+  const user = auth.currentUser;
+
+  if (user) {
+    console.log("User UID:", user.uid);
+    console.log("Selected Training ID:", trainingId);
+
+    const trainingRef = ref(
+      getDatabase(),
+      `users/${user.uid}/Training/${trainingId}`
+    );
+    const calibrationRef = ref(
+      getDatabase(),
+      `users/${user.uid}/Calibration/Training/${trainingId}/Thresholds`
+    );
+
+    const trainingSnapshot = await get(trainingRef);
+    const calibrationSnapshot = await get(calibrationRef);
+
+    console.log("Training Data:", trainingSnapshot.val());
+    console.log("Calibration Data:", calibrationSnapshot.val());
+
+    if (trainingSnapshot.exists()) {
+      navigation.navigate("DataChecker", { trainingId: training.id });
+    } else if (!calibrationSnapshot.exists()) {
+      // Calibration data doesn't exist, alert user to calibrate
+      navigation.navigate("AlertScreen");
+    } else {
+      // No data exists, navigate to the main screen
+      navigation.navigate("DataMonitor", { id: trainingId });
     }
-  };
+  } else {
+    console.log("No user is signed in.");
+  }
+};
+
+2
+  
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -95,15 +151,15 @@ const DetailScreen = ({ route, navigation }) => {
 
           
               
-              <View style={styles.musclegroup}>
-              {training.muscleimages.map((imageName, index) => (
-                <View key={index} style={styles.level}>
-                  <View style={styles.imageContainer}>
-                    <Image source={getMuscleImage(imageName)} style={styles.iconImage} />
-                  </View>
-                </View>
-              ))}
-            </View>
+          <View style={styles.musclegroup}>
+  {training.muscleimages.map((imageName, index) => (
+    <View key={`${imageName}-${index}`} style={styles.level}> 
+      <View style={styles.imageContainer}>
+        <Image source={getMuscleImage(imageName)} style={styles.iconImage} />
+      </View>
+    </View>
+  ))}
+</View>
         
           
       
@@ -111,9 +167,9 @@ const DetailScreen = ({ route, navigation }) => {
             <Button
               title="Start"
               style={styles.buttonStyle}
-              onPress={() => navigation.navigate('DataMonitor')}
-            />
-          </TouchableOpacity>
+              onPress={() => {handleStartPress(trainingName); navigation.navigate("DataMonitor", { id: trainingId })}}
+  />
+      </TouchableOpacity>
         </View>
         </ScrollView>
       </View>
@@ -142,7 +198,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: 'absolute',
-    marginTop: 40,
+    marginTop: 35,
     paddingLeft:15,
   },
   listSection: {
@@ -234,9 +290,10 @@ const styles = StyleSheet.create({
   startButton: {
     marginTop: wp('6%'),
     paddingBottom: wp('8%'),
+    marginVertical: 8,
   },
   buttonStyle: {
     width: '100%',
-    paddingVertical: wp('3.5%'),
+    marginVertical: 8,
   },
 });

@@ -152,7 +152,7 @@ const Signup = ({ navigation }) => {
         </View>
         <View style={{ marginVertical: 10 }}>
           <View style={{ marginBottom: 0 }}>
-            <Text style={{ ...FONTS.body2, color: COLORS.white, marginVertical: 8 }}>First Name</Text>
+            <Text style={{ ...FONTS.body2, color: COLORS.white, marginVertical: 8, fontSize:windowHeight * 0.025 }}>First Name</Text>
             <Input
               id="firstName"
               onInputChanged={inputChangedHandler}
@@ -162,7 +162,7 @@ const Signup = ({ navigation }) => {
             />
           </View>
           <View style={{ marginBottom: 0 }}>
-            <Text style={{ ...FONTS.body2, color: COLORS.white, marginVertical: 8, fontSize:windowHeight * 0.02, }}>Last Name</Text>
+            <Text style={{ ...FONTS.body2, color: COLORS.white, marginVertical: 8, fontSize:windowHeight * 0.025 }}>Last Name</Text>
             <Input
               id="lastName"
               onInputChanged={inputChangedHandler}
@@ -172,7 +172,7 @@ const Signup = ({ navigation }) => {
             />
           </View>
           <View style={{ marginBottom: 0 }}>
-            <Text style={{ ...FONTS.body2, color: COLORS.white, marginVertical: 8, fontSize:windowHeight * 0.02, }}>Email</Text>
+            <Text style={{ ...FONTS.body2, color: COLORS.white, marginVertical: 8, fontSize:windowHeight * 0.025 }}>Email</Text>
             <Input
               id="email"
               onInputChanged={inputChangedHandler}
@@ -186,7 +186,7 @@ const Signup = ({ navigation }) => {
             <Text style={{
               ...FONTS.body2,
               color: COLORS.white,
-              marginVertical: 8, fontSize:windowHeight * 0.02,
+              marginVertical: 8, fontSize:windowHeight * 0.025
             }}>Password</Text>
 
             <View style={{ flexDirection: "row" }}>
@@ -212,7 +212,7 @@ const Signup = ({ navigation }) => {
                 }}
               >
                 {
-                  isPasswordShown == false ? (
+                  isPasswordShown == true ? (
                     <Ionicons name="eye-off" size={24} color={COLORS.white} />
                   ) : (
                     <Ionicons name="eye" size={24} color={COLORS.white} />
@@ -226,7 +226,7 @@ const Signup = ({ navigation }) => {
             <Text style={{
               ...FONTS.body2,
               color: COLORS.white,
-              marginVertical: 8, fontSize:windowHeight * 0.02,
+              marginVertical: 8, fontSize:windowHeight * 0.025
             }}>Confirm Password</Text>
 
             <View style={{ flexDirection: "row" }}>
@@ -252,7 +252,7 @@ const Signup = ({ navigation }) => {
                 }}
               >
                 {
-                  isPasswordShown == false ? (
+                  isPasswordShown == true ? (
                     <Ionicons name="eye-off" size={24} color={COLORS.white} />
                   ) : (
                     <Ionicons name="eye" size={24} color={COLORS.white} />

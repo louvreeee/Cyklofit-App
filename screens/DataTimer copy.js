@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Image,ScrollView, Text, TouchableOpacity, Dimensions } from 'react-native';
+import { View, StyleSheet, Image,ScrollView, Alert, Text, TouchableOpacity, Dimensions } from 'react-native';
 import { BarChart, Grid } from 'react-native-svg-charts';
 import { COLORS, FONTS } from "../constants";
 import { Ionicons } from "@expo/vector-icons";
@@ -141,14 +141,14 @@ const DataTimer = ({ route, navigation, ...props }) => {
     return () => clearInterval(intervalId);
   }, [isTimerRunning]);
 
-  useEffect(() => {
+{/*} useEffect(() => {
     const intervalId = setInterval(() => {
       const newBars = barData.map(bar => [...bar, Math.random() * 100].slice(-10));
       setBarData(newBars);
     }, 3000);
 
     return () => clearInterval(intervalId);
-  }, []);
+  }, []); */}
 
   const handlePause = () => setIsTimerRunning(false);
   const handlePlay = () => setIsTimerRunning(true);
@@ -211,7 +211,46 @@ const DataTimer = ({ route, navigation, ...props }) => {
     const remainingSeconds = seconds % 60;
     return `${hours < 10 ? "0" : ""}${hours}:${minutes < 10 ? "0" : ""}${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
   };
+  
 
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchMuscleFatigueIndex = async () => {
+      try {
+        const database = getDatabase(getFirebaseApp());
+        const auth = getAuth();
+        onAuthStateChanged(auth, async (user) => {
+          if (user) {
+            const userId = user.uid;
+            const trainingNames = {
+              1: "Sprinting",
+              2: "Standing Climbing",
+              3: "Seated Climbing"
+            };
+            const trainingName = trainingNames[trainingId];
+            const mfiRef = ref(database, `users/${userId}/Training/${trainingName}/muscleFatigueIndex`);
+            const snapshot = await get(mfiRef);
+  
+            if (snapshot.exists()) {
+              const data = snapshot.val();
+              // Convert the muscle fatigue index data to an array of arrays
+              const newBarData = Object.values(data).map(value => [value]); // Convert each value to an array
+              setBarData(newBarData);
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Error fetching muscle fatigue index data:', error);
+        Alert.alert('Error', 'Failed to fetch muscle fatigue index data');
+      } finally {
+        setIsLoading(false); // Set loading state to false after fetching data
+      }
+    };
+  
+    fetchMuscleFatigueIndex();
+  }, [trainingId]); // Fetch data when trainingId changes
+  
   return (
     <View style={{ flex: 1, backgroundColor: COLORS.background, paddingBottom: 30 }}>
       <ScrollView style={{ flex: 1, paddingLeft: 20, paddingRight: 20 }}>
@@ -261,19 +300,22 @@ const DataTimer = ({ route, navigation, ...props }) => {
           <View style={styles.barChartContainer}>
             <Text style={styles.labelText}>Muscle Fatigue Index</Text>
             <BarChart
-              style={{ height: 150, width: 300 }}
-              horizontal={true}
-              spacingInner={0.1}
-              gridMin={0}
-              gridMax={100}
-              data={barData.map((data, index) => ({
-                data,
-                svg: { fill: colors[index] },
-              }))}
-              contentInset={{ top: 30, bottom: 30 }}
-            >
-              <Grid direction={Grid.Direction.VERTICAL} svg={{ stroke: 'white', strokeWidth: 0.25, opacity: 0.2 }}/>
-            </BarChart>
+  style={{ height: 150, width: 300 }}
+  horizontal={true}
+  spacingInner={0.1}
+  gridMin={0}
+  gridMax={1}
+  data={barData.map((data, index) => ({
+    data,
+    svg: { fill: colors[index] },
+  }))}
+  contentInset={{ top: 10, bottom: 15 }}
+>
+
+  <Grid direction={Grid.Direction.VERTICAL} svg={{ stroke: 'white', strokeWidth: 0.25, opacity: 0.2 }}/>
+  <Grid direction={Grid.Direction.VERTICAL} svg={{ stroke: 'red', strokeWidth: 0.25, opacity: 0.2 }}/>
+</BarChart>
+
           </View>
         </View>
         <View style={styles.timerContainer}>

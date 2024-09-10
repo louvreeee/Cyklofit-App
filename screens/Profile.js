@@ -81,7 +81,7 @@ const Profile = ({ navigation }) => {
           items: [
             { id: '1', label: 'Edit Profile', type: 'link', screen: 'EditProfile' },
             { id: '2', label: 'Contact Us', type: 'link', screen: 'EditProfile' },
-            { id: '3', label: 'Settings', type: 'link', screen: 'EditProfile' },
+         //   { id: '3', label: 'Settings', type: 'link', screen: 'EditProfile' },
           ],
         },
       ];
@@ -174,7 +174,7 @@ export default Profile
   
   const styles = StyleSheet.create({
     container: {
-      paddingVertical: 24,
+     // paddingVertical: 24,
       padding: 10,
       backgroundColor: COLORS.background,
       height: '100%',
@@ -204,7 +204,9 @@ export default Profile
       color: COLORS.white,
     },
     profile: {
-      padding: 16,
+      paddingLeft: 16,
+      paddingRight: 16,
+      paddingTop: 16,
       flexDirection: 'column',
       //alignItems: 'center',
       backgroundColor: COLORS.background,
@@ -222,9 +224,9 @@ export default Profile
     },
     logoutButton: {
       width: '100%',
-      paddingVertical: 12,
+     // paddingVertical: 12,
       paddingHorizontal: 22,
-      
+      marginVertical: 8,
     },
     profileAvatar: {
       width: 60,

@@ -4,12 +4,12 @@
     "slug": "Cyklofit",
     "version": "1.1.2",
     "orientation": "portrait",
-    "icon": "./assets/icons/favicon.png",
+    "icon": "./assets/icons/logo-small.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/icons/favicon-cy.png",
+      "image": "./assets/icons/logo-tag.png",
       "resizeMode": "contain",
-      "backgroundColor": "#171725",
+      "backgroundColor": "#171725"
     
     },
     "updates": {
@@ -23,12 +23,14 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/icons/favicon.png"
+        "foregroundImage": "./assets/icons/logo-small.png",
+        "backgroundColor": "#171725"
+       
       },
       "package": "com.cyklofit"
     },
     "web": {
-      "favicon": "./assets/icons/favicon.png"
+      "favicon": "./assets/icons/logo-tag.png"
     },
     "plugins": [
       "expo-font"

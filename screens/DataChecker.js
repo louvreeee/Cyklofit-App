@@ -5,70 +5,47 @@ import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { COLORS, FONTS } from "../constants";
 import Button from '../components/ButtonNoBorder';
+import {   getDatabase, push, ref, set, update, remove, get, query, orderByChild, equalTo,} from "firebase/database";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+
 const { width: windowWidth, height: windowHeight } = Dimensions.get("window");
 
-const BluetoothScreen = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [isConnected, setIsConnected] = useState(false);
+const DataChecker = ({ route }) => {
+  const { trainingId } = route.params;
+
   const navigation = useNavigation();
 
-  const establishConnection = async () => {
-    try {
-      const response = await axios.post('https://testdeploy-production-50d3.up.railway.app/establish-connection');
-      console.log(response.data.message);
-      await checkConnectionStatus();
-    } catch (error) {
-       console.log('Error establishing connection:', error);
-    }
-  };
-
-  const checkConnectionStatus = async () => {
-  
-    Alert.alert("Connecting...", "", [
-      { text: "Cancel", onPress: () => cancelFunction(), style: "cancel" }
-    ]);
-  
-    setIsLoading(true);
-  
-    try {
-      const response = await axios.get('https://testdeploy-production-50d3.up.railway.app/connection-status');
-      console.log('Connection status response:', response.data);
-      setIsConnected(response.data.connected);
-  
-
-      setIsLoading(false);
-  
-      if (response.data.connected) {
-
-        Alert.alert("Connection established", "Connection to the server is successful.");
-        navigation.navigate('CalibrateTraining');
-      } else {
-       
-        Alert.alert("Connection not established", "Please check your connection settings and try again.");
-      }
-    } catch (error) {
-      console.error('Error checking connection status:', error);
-
-      setIsLoading(false);
- 
-      Alert.alert("Connection failed", "There was an error checking the connection status.");
-    }
-  };
-  
   const handleOkPress = async () => {
-    setIsConnecting(true);
-    await establishConnection();
-    await checkConnectionStatus();
-  };
-  
-  const cancelFunction = () => {
+    try {
+      const database = getDatabase();
+      const auth = getAuth();
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          const userId = user.uid;
+          const trainingNames = {
+            1: "Sprinting",
+            2: "Standing Climbing",
+            3: "Seated Climbing"
+          };
+          const trainingName = trainingNames[trainingId];
+          const trainingRef = ref(
+            database,
+            `users/${user.uid}/Training/${trainingName}`
+          );
 
-    setIsLoading(false);
-    setIsConnecting(false);
-  };
-  
-  
+          await remove(trainingRef);
+          console.log("Training data deleted");
+          Alert.alert("Success", "Training data deleted successfully.");
+          navigation.navigate("DataMonitor", { id: trainingId });
+        }
+      });
+    } catch (error) {
+      console.error("Error deleting training data:", error);
+      Alert.alert("Error", "Failed to delete training data. Please try again.");
+    }
+  }
+
+
   return (
 <View style={styles.mcontainer}>
     
@@ -83,19 +60,18 @@ const BluetoothScreen = () => {
     <View style={styles.container}>
       <View
         style={styles.box}  >
-        <Text style={styles.heading}> Cyklofit Server Connection Request</Text>
-        <Text style={styles.paragraph}>Cyklofit server is seeking permission to establish a connection with your device. Proceed with the connection?</Text>
+        <Text style={styles.heading}>Training Data Found</Text>
+        <Text style={styles.paragraph}>It seems there's pre-existing training data that must be cleared before you can continue. Should we delete it and initiate a new session?</Text>
         <View style={styles.buttonContainer}>
         <TouchableOpacity 
-            style={[styles.btn, (isLoading || isConnecting) && styles.disabledBtn]} // Apply disabledBtn style when isLoading or isConnecting is true
-            disabled={isLoading || isConnecting}
-            onPress={handleOkPress}
-          ><Button 
+            style={styles.btn}
+            onPress={() => handleOkPress(trainingId)}> 
+          <Button 
             title="OK"
           /></TouchableOpacity>
  <TouchableOpacity ><Button style={styles.btn2}
             title="Don't allow"
-            onPress={()=> navigation.goBack()}
+            onPress={() => navigation.navigate("Training")}
           /></TouchableOpacity>
           </View>
        </View>
@@ -190,4 +166,4 @@ const styles = StyleSheet.create({
     paddingLeft:15,
     },
   });
-  export default BluetoothScreen;
+  export default DataChecker;

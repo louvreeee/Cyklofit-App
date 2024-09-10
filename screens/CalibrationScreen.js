@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Dimensions, Alert } from 'react-native';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from '@react-navigation/native';
@@ -7,98 +7,79 @@ import { COLORS, FONTS, SIZES } from "../constants";
 import axios from 'axios';
 
 const { width: windowWidth, height: windowHeight } = Dimensions.get("window");
+
 const App = () => {
   const navigation = useNavigation();
   const [currentState, setCurrentState] = useState(null);
-  const [connectionStatus, setConnectionStatus] = useState('Not Connected');
-  const [isConnected, setIsConnected] = useState(false); // Track connection status as a boolean
-
-  const establishConnection = async () => {
-    try {
-      const response = await axios.post('http://192.168.55.119:5000/establish-connection');
-      console.log(response.data.message);
-      checkConnectionStatus(); // Check connection status after attempting to establish connection
-    } catch (error) {
-      console.error('Error establishing connection:', error);
-    }
-  };
-
-  const checkConnectionStatus = async () => {
-    try {
-      const response = await axios.get('http://192.168.55.119:5000/connection-status');
-      setIsConnected(response.data.connected); // Update isConnected based on the connection status
-      setConnectionStatus(response.data.connected ? 'Established connection' : 'Not Connected');
-    } catch (error) {
-      console.error('Error checking connection status:', error);
-      setIsConnected(false); // Assume not connected on error
-    }
-  };
-
-  const resetTimer = async () => {
-    try {
-      await axios.post('http://192.168.55.119:5000/reset-timer');
-      setCurrentState('Timer Reset');
-      // Optionally reset other states or variables as needed
-    } catch (error) {
-      console.error('Error resetting timer:', error);
-    }
-  };
-
-  const setState1 = async () => {
-   // if (isConnected) { // Only proceed if connected
-      try {
-        await axios.post('http://192.168.55.119:5000/set-state-1');
-        setCurrentState(1);
-      } catch (error) {
-        console.error('Error setting state 1:', error);
-      }
-    };
-
-
-  const setState2 = async () => {
-    try {
-      await axios.post('http://192.168.55.119:5000/set-state-2');
-      setCurrentState(2);
-    } catch (error) {
-      console.error('Error setting state 2:', error);
-    }
-  };
-
-  const setState3 = async () => {
-    try {
-      await axios.post('http://192.168.55.119:5000/set-state-3');
-      setCurrentState(3);
-    } catch (error) {
-      console.error('Error setting state 3:', error);
-    }
-  };
-
-  const getState = async () => {
-    try {
-      const response = await axios.get('http://192.168.55.119:5000/get-state');
-      setCurrentState(response.data.state);
-    } catch (error) {
-      console.error('Error getting state:', error);
-    }
-  };
-
   const [isPlaying, setIsPlaying] = useState(false);
   const [key, setKey] = useState(0); // Used to reset the timer
   const duration = 30; // Duration in seconds
 
+  const resetTimer = async () => {
+    try {
+      await axios.post('https://testdeploy-production-50d3.up.railway.app/reset-timer');
+      setCurrentState('Timer Reset');
+      setIsPlaying(false); // Stop the timer
+      setKey(prevKey => prevKey + 1); // Increment key to reset the timer
+    } catch (error) {
+      console.log('Error resetting timer:', error);
+    }
+  };
+
+  const setState1 = async () => {
+    try {
+      await axios.post('https://testdeploy-production-50d3.up.railway.app/set-state-1');
+      setCurrentState(1);
+    } catch (error) {
+      console.log('Error setting state 1:', error);
+    }
+  };
+
   const handleReset = () => {
     resetTimer();
-    setIsPlaying(false); // Stop the timer before resetting
-    setKey(prevKey => prevKey + 1); // Increment key to reset the timer
   };
 
-  const handlePlayPause = () => {
-    if (!isPlaying) { // Check if the timer is not already playing
-      setState1(); // Call setState1 only when starting the timer
+  const handlePlay = () => {
+    if (!isPlaying) {
+      setState1(); 
     }
-    setIsPlaying(prevIsPlaying => !prevIsPlaying);
+    setIsPlaying(true); 
   };
-
+  
+  const handleTimeElapsed = () => {
+    console.log("Timer elapsed"); 
+    setIsPlaying(false); 
+    Alert.alert(
+      "Time’s Up",
+      "Do you want to keep the calibration data?",
+      [
+        {
+          text: "Try Again",
+          onPress: () => {
+            setKey(prevKey => prevKey + 1); 
+          },
+          style: "cancel"
+        },
+        {
+          text: "Save",
+          onPress: async () => {
+            try {
+              const response = await axios.post('https://testdeploy-production-50d3.up.railway.app/set-save-flag', { save: true });
+              console.log("Flag set to save thresholds. Proceeding with calibration.", response.data.message);
+              // Add any further actions here, if necessary, to proceed with calibration
+               // Then, send a confirmation to save the data
+              await axios.post('https://testdeploy-production-50d3.up.railway.app/confirm-save');
+              Alert.alert("Success", "Calibration data saved successfully.");
+            } catch (error) {
+              console.error("Error setting save flag:", error);
+              Alert.alert("Error", "Failed to set the save flag.");
+            }
+          }
+        }
+      ]
+    );
+  };
+  
   const formatTime = (time) => {
     const minutes = Math.floor(time / 60).toString().padStart(2, '0');
     const seconds = (time % 60).toString().padStart(2, '0');
@@ -106,73 +87,71 @@ const App = () => {
   };
 
 
-  
+  const handleGoBack = () => {
+    if (isPlaying) {
+   
+      Alert.alert(
+        "Going back is not possible yet.",
+        "The timer is still running. Please wait until it is done.",
+        [{ text: "OK", onPress: () => console.log("Alert closed") }]
+      );
+    } else {
+      navigation.goBack();
+    }
+  };
+
   return (
-    <SafeAreaView style={{ backgroundColor: COLORS.background, flex: 1,}}>
-        <View style={{marginVertical: 20, padding:20  }}>
-      <View style={{ flexDirection: 'row', justifyContent: 'left',  paddingLeft:-5,paddingBottom:10,}}><TouchableOpacity
-        onPress={() => navigation.goBack()}
-      >
-        <Ionicons name="arrow-back-circle" size={55} color={COLORS.white} />
-      </TouchableOpacity>
-      <Text style={styles.headerText}>Device Calibration</Text>
-      </View>
-
-
-
-      <View style={[styles.container3]}>
-      <View style={styles.timerWrapper}>
-        <CountdownCircleTimer
-          key={key}
-          isPlaying={isPlaying}
-          duration={duration}
-          colors={[
-                '#A50102','#A00102' 
-              ]}
-          size={SIZES.width * 0.7}
-          strokeWidth={20}
-          trailColor="#171725"
+    <SafeAreaView style={{ backgroundColor: COLORS.background, flex: 1 }}>
+      <View style={{ flexDirection: 'row', marginTop:-5}}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={handleGoBack} 
         >
-          {({ remainingTime }) => (
-            <Text style={styles.timeText}>{formatTime(remainingTime)}</Text>
-          )}
-        </CountdownCircleTimer>
-        <View style={styles.controls}>
-        <TouchableOpacity onPress={() => {
-  setState1();
-  handlePlayPause();
-}}>
-            <Ionicons name={isPlaying ? "pause-circle" : "play-circle"} size={55} color={COLORS.white} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={handleReset}>
-            <Ionicons name="refresh-circle" size={55} color={COLORS.white} />
-          </TouchableOpacity>
-         
+          <Ionicons name="arrow-back-circle" size={55} color={COLORS.white} />
+        </TouchableOpacity>
+        <Text style={styles.titleText}>Device Calibration</Text>
+      </View>
+      <View style={{ marginVertical: 0, padding: 30 }}>
+        <View style={[styles.container3]}>
+          <View style={styles.timerWrapper}>
+            <CountdownCircleTimer
+              key={key}
+              isPlaying={isPlaying}
+              duration={duration}
+              colors={['#A50102', '#A00102']}
+              size={SIZES.width * 0.6}
+              strokeWidth={17}
+              trailColor="#171725"
+              onComplete={handleTimeElapsed}
+              isLinearGradient={true} 
+              strokeLinecap="round" 
+            >
+              {({ remainingTime }) => (
+                <Text style={styles.timeText}>{formatTime(remainingTime)}</Text>
+              )}
+            </CountdownCircleTimer>
+            <View style={styles.controls}>
+              <TouchableOpacity onPress={isPlaying ? null : handlePlay} disabled={isPlaying}>
+                <Ionicons name={"play-circle"} size={55} color={isPlaying ? COLORS.gray : COLORS.white} />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => { handleReset(); }}>
+                <Ionicons name="refresh-circle" size={55} color={COLORS.white} />
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
-      </View>
- 
-      </View>
       </View>
     </SafeAreaView>
   );
-}
-  const styles = StyleSheet.create({
+};
 
-    container3: {
-   //   flex:2,
-      justifyContent: 'center',
-      alignItems: 'center',
-     // paddingTop: Constants.statusBarHeight,
-      backgroundColor: COLORS.containerbox,
-      borderRadius: 20, 
-    //  padding: 20,
-      height: windowHeight * 0.75,
-      marginVertical: 10,
-    },
-
-  control:{
-    marginTop: 100,
-    flexDirection: 'row',
+const styles = StyleSheet.create({
+  container3: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: COLORS.containerbox,
+    borderRadius: 20,
+    height: windowHeight * 0.77,
   },
   safeAreaView: {
     flex: 1,
@@ -185,8 +164,14 @@ const App = () => {
   headerText: {
     ...FONTS.h6,
     color: COLORS.white,
-    marginTop:20,
+    marginTop: 20,
     marginLeft: windowWidth * 0.1,
+  },
+  titleText: {
+    marginTop:60,
+    paddingLeft: windowWidth * 0.1,
+    ...FONTS.h6,
+    color: COLORS.white,
   },
   timerWrapper: {
     flex: 1,
@@ -194,7 +179,7 @@ const App = () => {
     alignItems: 'center',
   },
   timeText: {
-    ...FONTS.h1,
+    ...FONTS.h2,
     color: COLORS.white,
   },
   controls: {
@@ -204,6 +189,10 @@ const App = () => {
     alignContent: 'center',
     justifyContent: 'space-between',
   },
-  
-  });
-  export default App;
+  backButton: {
+    marginTop: 40,
+    paddingLeft:15,
+  },
+});
+
+export default App;

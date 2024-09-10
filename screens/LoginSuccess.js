@@ -1,86 +1,120 @@
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native'
-import React from 'react'
-import Onboarding from 'react-native-onboarding-swiper';
-import Lottie from 'lottie-react-native';
-import WelcomeScreen from '../screens/WelcomeScreen';
-import { useNavigation } from '@react-navigation/native';
+import React, { useState, useEffect } from "react";
+import { View, Text, TouchableOpacity, StyleSheet, Dimensions, Alert } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
+import { COLORS, FONTS } from "../constants";
+import Button from '../components/Button';
+import LottieView from "lottie-react-native";
+const { width: windowWidth, height: windowHeight } = Dimensions.get("window");
 
-const {width, height} = Dimensions.get('window');
+const LoginSuccess = () => {
+  const navigation = useNavigation();
 
-export default function OnboardingScreen() {
-    const navigation = useNavigation();
-
-    const handleDone = ()=>{
-        navigation.navigate('Welcome');
-       //  setItem('onboarded', '1');
-    }
-
-    const doneButton = ({...props})=>{
-        return (
-            <TouchableOpacity style={styles.doneButton} {...props}>
-                <Text>Done</Text>
-            </TouchableOpacity>
-        )
-        
-    }
   return (
+<View style={styles.mcontainer}>
+
     <View style={styles.container}>
-      <Onboarding
-            onDone={handleDone}
-            onSkip={handleDone}
-            // bottomBarHighlight={false}
-            DoneButtonComponent={doneButton}
-            containerStyles={{paddingHorizontal: 15}}
-            pages={[
-                {
-                    backgroundColor: '#a7f3d0',
-                    image: (
-                        <View style={styles.lottie}>
-                            <Lottie source={require('../assets/animations/boost.json')} autoPlay loop />
-                        </View>
-                    ),
-                    title: 'Meet Your Virtual Training Assistant',
-                    subtitle: '',
-                },
-                {
-                    backgroundColor: '#fef3c7',
-                    image: (
-                        <View style={styles.lottie}>
-                            <Lottie source={require('../assets/animations/work.json')} autoPlay loop />
-                        </View>
-                    ),
-                    title: 'Monitor Your Muscle Condition',
-                    subtitle: ' ',
-                },
-                {
-                    backgroundColor: '#a78bfa',
-                    image: (
-                        <View style={styles.lottie}>
-                            <Lottie source={require('../assets/animations/achieve.json')} autoPlay loop />
-                        </View>
-                    ),
-                    title: 'Achieve Higher Goals',
-                    subtitle: 'Welcome Lets Train Together',
-                },
-            ]}
-        />
+      <View
+        style={styles.box}  >
+        <LottieView
+        style={{
+          height: 140,
+        }}
+        source={require("../assets/animations/success.json")}
+        autoPlay
+        loop={false}
+        speed={0.9}
+      />
+        {/*<Text style={{paddingTop:windowHeight * 0.01}}><Ionicons name="checkmark-circle" size={105} color={'#00C566'} /></Text>*/}
+        <Text style={styles.heading}>Welcome aboard,{'\n'} Champion Cyclist</Text>
+        <Text style={styles.paragraph}>Your login to Cyklofit was successful. You are now all set to dive into your cycling journey.</Text>
+        
+            <Button title="Continue" style={styles.btn}  onPress={() => navigation.navigate('BottomTabNavigation')}/>
+         
+       </View>
     </View>
-  )
+    </View>
+    
+  );
 }
 
+
+
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: 'white'
+  mcontainer: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+    alignItems: "center",
+    justifyContent: "center",
+
+  },
+  container: {
+    alignItems: "center",
+    justifyContent: "center",
+    padding:30,
+    height: windowHeight * 0.8,
+  },
+  box: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: COLORS.containerbox,
+    borderRadius: 20, 
+    //width:'80%',
+    height:windowHeight * 0.65,
+    padding:20,
     },
-    lottie:{
-        width: width*0.9,
-        height: width
+  topheader: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#171725",
+    padding:30,
+  },
+  heading:{
+    color:COLORS.white,
+    ...FONTS.h5,
+    textAlign: "center",
+    paddingTop: 0,
+    fontSize: windowHeight *0.032,
+  },
+  disabledBtn: {
+    backgroundColor: COLORS.gray,
+    borderColor: COLORS.gray, 
+   },
+  btn:{
+    width: windowWidth * 0.6,
+    fontSize: windowHeight * 0.3,
+    marginVertical: 8,
+    borderColor: COLORS.primary,
+    backgroundColor: COLORS.primary,
+    borderWidth: 2,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: windowHeight * 0.075,
+  },
+  paragraph:{
+    color:COLORS.gray,
+    ...FONTS.body4,
+    fontWeight: "300",
+    paddingTop: 10,
+    paddingBottom:10,
+    textAlign: "center",
+    fontSize: windowHeight *0.022,
+    width:windowWidth * 0.7,
+    padding:5,
+  },
+  buttonContainer: {
+    alignItems: "center",
+    width:"100%",
+    padding:20,
+    flexDirection:"column",
+    justifyContent: 'center',
+  },
+
+  backButton: {
+    marginTop: 35,
+    paddingLeft:15,
     },
-    doneButton: {
-        padding: 20,
-        // backgroundColor: 'white',
-        // borderTopLeftRadius: '100%',
-        // borderBottomLeftRadius: '100%'
-    }
-})
+  });
+  export default LoginSuccess;

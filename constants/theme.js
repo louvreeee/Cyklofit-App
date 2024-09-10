@@ -5,10 +5,14 @@ export const COLORS = {
     primary: "#a11d1d",
     white: "#E3E7EC",
     background: "#171725",
+    //background: "#E3E7EC",
     gray: "#6C6C6C",
     darkgray: "#4A4A65",
+    lightgray: "#B9B9B9",
+    grey:"#434E58",
     black: "#111111",
     containerbox: "#272636",
+    //containerbox: "#d7d7da",
 }
 
 export const SIZES = {
